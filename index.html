@@ -1,1 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>synix</title>
+<meta name="description" content="movies, ai, proxies">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23120a1e'/%3E%3Crect x='7' y='7' width='18' height='18' rx='5' fill='none' stroke='%23ff2fa0' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='3.4' fill='%23ff2fa0'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;background:#07060f}
+#synix{position:relative;overflow:hidden;min-height:100vh;background:radial-gradient(130% 70% at 50% -5%,#200e3d 0%,#0d0819 42%,#07060f 78%);color:#f6ecff;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;padding-bottom:8px}
+.blob{position:absolute;border-radius:50%;filter:blur(52px);pointer-events:none;opacity:.6;z-index:0}
+.b1{width:340px;height:340px;top:-90px;left:-70px;background:radial-gradient(circle,#ff2fa0,transparent 68%)}
+.b2{width:420px;height:300px;top:150px;right:-120px;background:radial-gradient(circle,#8b2bff,transparent 70%)}
+.b3{width:300px;height:300px;top:760px;left:-90px;background:radial-gradient(circle,#ff4fc3,transparent 70%);opacity:.45}
+.b4{width:380px;height:340px;top:1500px;right:-110px;background:radial-gradient(circle,#6b1fff,transparent 72%);opacity:.5}
+.grain{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.5;background-image:radial-gradient(rgba(255,255,255,.09) .5px,transparent .5px);background-size:3px 3px}
+#synix > *:not(.blob):not(.grain){position:relative;z-index:2}
+.topbar{display:flex;align-items:center;gap:10px;padding:14px 16px}
+.brand{font-weight:800;font-size:15px;letter-spacing:-.4px;display:flex;align-items:center;gap:6px}
+.brand .dot{width:6px;height:6px;border-radius:50%;background:#ff2fa0;box-shadow:0 0 10px #ff2fa0}
+.pill{flex:1;display:flex;justify-content:center;gap:2px;background:rgba(255,255,255,.05);border:1px solid rgba(255,120,215,.3);border-radius:999px;padding:5px;backdrop-filter:blur(10px);box-shadow:0 0 22px rgba(255,47,160,.22),inset 0 0 16px rgba(255,47,160,.08)}
+.pill a{display:grid;place-items:center;width:30px;height:26px;border-radius:999px;color:#ffd9f1;opacity:.85;transition:.18s}
+.pill a:hover{background:rgba(255,47,160,.22);opacity:1;transform:translateY(-1px)}
+.pill svg{width:15px;height:15px}
+.clock{display:flex;align-items:center;gap:6px;font-size:11px;color:#e5c9ff;font-variant-numeric:tabular-nums;background:rgba(255,255,255,.05);border:1px solid rgba(255,120,215,.22);padding:5px 9px;border-radius:999px}
+.live{width:5px;height:5px;border-radius:50%;background:#4dffa8;box-shadow:0 0 8px #4dffa8;animation:pulse 1.8s infinite}
+@keyframes pulse{50%{opacity:.25}}
+.ribbon{margin:2px 0 8px;border-top:1px solid rgba(255,110,210,.22);border-bottom:1px solid rgba(255,110,210,.22);padding:6px 0;overflow:hidden;background:rgba(255,47,160,.05)}
+.ribbon-track{display:flex;gap:22px;width:max-content;animation:slide 34s linear infinite;color:#ff9ada;opacity:.75}
+.ribbon-track svg{width:13px;height:13px}
+@keyframes slide{to{transform:translateX(-50%)}}
+.hero{text-align:center;padding:26px 20px 8px}
+.logo-mark{width:44px;height:44px;margin:0 auto 12px;border-radius:13px;display:grid;place-items:center;background:rgba(255,47,160,.14);border:1px solid rgba(255,120,215,.45);box-shadow:0 0 26px rgba(255,47,160,.45),inset 0 0 18px rgba(255,47,160,.25);color:#fff}
+.logo-mark svg{width:23px;height:23px}
+h1{margin:0;font-size:52px;line-height:.94;font-weight:800;letter-spacing:-2.6px;background:linear-gradient(180deg,#fff,#ffc4ec 55%,#ff4fb6);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 26px rgba(255,47,160,.55))}
+.kicker{margin:10px 0 0;font-size:11px;font-weight:600;letter-spacing:2.4px;text-transform:uppercase;color:#ff8fd2}
+.sub{margin:6px 0 18px;font-size:13px;color:#d9c6ef}
+.sub b{color:#fff;font-weight:600}
+.searchwrap{display:flex;align-items:center;gap:8px;max-width:430px;margin:0 auto;background:rgba(12,8,22,.72);border:1px solid rgba(255,120,215,.35);border-radius:999px;padding:6px 6px 6px 14px;box-shadow:0 0 24px rgba(255,47,160,.2)}
+.sicon{width:15px;height:15px;color:#ff8fd2;flex:none}
+.searchwrap input{flex:1;background:none;border:0;outline:0;color:#fff;font-size:13px;font-family:inherit;min-width:0}
+.searchwrap input::placeholder{color:#9d8ab4}
+.searchwrap button,.openbar button{background:linear-gradient(180deg,#ff5cba,#e01b8d);color:#fff;border:0;border-radius:999px;padding:8px 16px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;box-shadow:0 0 16px rgba(255,47,160,.5)}
+.searchwrap button:hover,.openbar button:hover{filter:brightness(1.12)}
+.chips{display:flex;justify-content:center;gap:6px;margin-top:14px;flex-wrap:wrap}
+.chip{font-size:10px;padding:4px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.14);color:#c9b6de;background:rgba(255,255,255,.04)}
+.chip.on{border-color:rgba(77,255,168,.45);color:#8dffc8;background:rgba(77,255,168,.1)}
+.sec{padding:26px 18px 4px}
+.sechead{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+h2{margin:0;font-size:17px;font-weight:700;letter-spacing:-.4px}
+.count{font-size:10px;color:#a58fbe;letter-spacing:.6px}
+.note{font-size:11.5px;line-height:1.55;color:#a996c0;margin:0 0 14px;max-width:560px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.card{position:relative;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.1);cursor:pointer;background:#120c20;aspect-ratio:2/3;display:flex;align-items:flex-end;padding:9px;transition:.2s}
+.card:hover{transform:translateY(-3px);border-color:rgba(255,90,200,.6);box-shadow:0 10px 26px rgba(255,47,160,.28)}
+.card .art{position:absolute;inset:0;opacity:.95}
+.card .art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 34%,rgba(6,4,12,.94))}
+.card .tt{position:relative;z-index:2;font-size:11px;font-weight:600;line-height:1.28;text-shadow:0 1px 8px #000}
+.card .yr{position:relative;z-index:2;font-size:9px;color:#c8b4dd;margin-top:2px}
+.card .play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.85);width:32px;height:32px;border-radius:50%;background:rgba(255,47,160,.9);display:grid;place-items:center;opacity:0;transition:.2s;z-index:3;box-shadow:0 0 18px rgba(255,47,160,.8)}
+.card:hover .play{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.play svg{width:12px;height:12px;fill:#fff;margin-left:2px}
+.card.hide{display:none}
+.ai-grid{grid-template-columns:repeat(3,1fr)}
+.acard{aspect-ratio:auto;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.045);display:block;text-decoration:none;color:#f6ecff;transition:.2s}
+.acard:hover{background:rgba(255,47,160,.13);border-color:rgba(255,90,200,.5);transform:translateY(-2px)}
+.acard .an{font-size:12px;font-weight:600}
+.acard .ad{font-size:10px;color:#a996c0;margin-top:3px;line-height:1.4}
+.acard .ext{position:absolute;top:8px;right:8px;font-size:9px;color:#8f7ba8}
+.proxy-grid{grid-template-columns:repeat(2,1fr)}
+.pcard{aspect-ratio:auto;padding:11px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);text-decoration:none;color:#f6ecff;display:flex;align-items:center;gap:9px;transition:.2s}
+.pcard:hover{border-color:rgba(255,90,200,.55);background:rgba(255,47,160,.12)}
+.pdot{width:6px;height:6px;border-radius:50%;background:#4dffa8;box-shadow:0 0 8px #4dffa8;flex:none}
+.pcard b{font-size:12px;font-weight:600;display:block}
+.pcard small{font-size:9.5px;color:#a996c0}
+.openbar{display:flex;gap:7px;margin-top:11px}
+.openbar input{flex:1;background:rgba(12,8,22,.7);border:1px solid rgba(255,120,215,.28);border-radius:10px;padding:9px 12px;color:#fff;font-size:11.5px;font-family:inherit;outline:0;min-width:0}
+.openbar input:focus{border-color:rgba(255,90,200,.7)}
+.openbar button{border-radius:10px;padding:9px 15px}
+.toolgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.tool{text-align:left;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px;cursor:pointer;color:#f6ecff;font-family:inherit;transition:.2s}
+.tool:hover{border-color:rgba(255,90,200,.5);background:rgba(255,47,160,.1)}
+.tico{display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:rgba(255,47,160,.16);border:1px solid rgba(255,120,215,.3);color:#ffb3e0;margin-bottom:8px}
+.tico svg{width:13px;height:13px}
+.tool b{display:block;font-size:12px;font-weight:600}
+.tool small{display:block;font-size:10px;color:#a996c0;line-height:1.5;margin-top:4px}
+.tool i{color:#ffb3e0;font-style:normal;font-weight:600}
+.panicro{display:flex;gap:7px;flex-wrap:wrap}
+.panicro select,.panicro button{background:rgba(12,8,22,.8);border:1px solid rgba(255,120,215,.3);color:#f6ecff;border-radius:9px;padding:9px 11px;font-size:11.5px;font-family:inherit;outline:0}
+.panicro button{cursor:pointer;background:rgba(255,47,160,.18)}
+.kbd-hint{font-size:10.5px;color:#a996c0;margin-top:10px}
+kbd{font-family:inherit;font-size:10px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-bottom-width:2px;border-radius:5px;padding:2px 6px;color:#fff}
+footer{margin-top:34px;padding:22px 18px 26px;border-top:1px solid rgba(255,110,210,.18);text-align:center}
+.fbrand{font-weight:800;font-size:14px;letter-spacing:-.3px;color:#ff8fd2}
+footer p{font-size:10.5px;color:#8f7ba8;line-height:1.6;max-width:420px;margin:7px auto 0}
+footer .tiny{font-size:9.5px;color:#6d5c82;margin-top:12px}
+.modal{position:fixed;inset:0;z-index:40;background:rgba(4,2,9,.93);backdrop-filter:blur(6px);display:none;padding:16px;overflow:auto}
+.modal.open{display:block}
+.modal-in{max-width:660px;margin:0 auto;border:1px solid rgba(255,90,200,.35);border-radius:14px;background:#0c0817;padding:14px;box-shadow:0 0 40px rgba(255,47,160,.25)}
+.mhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.mhead h3{margin:0;font-size:14px;font-weight:600}
+.mright{display:flex;gap:7px;align-items:center;flex:none}
+.mright a,.mright button{font-size:10px;font-family:inherit;text-decoration:none;border-radius:8px;padding:6px 10px;border:1px solid rgba(255,120,215,.3);color:#ffb3e0;background:rgba(255,47,160,.14);cursor:pointer}
+.sources{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.sources button{font-size:10px;font-family:inherit;padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:none;color:#c9b6de;cursor:pointer}
+.sources button.on{background:rgba(255,47,160,.3);border-color:rgba(255,90,200,.7);color:#fff}
+.frame-wrap{border-radius:10px;overflow:hidden;background:#000;border:1px solid rgba(255,255,255,.1)}
+#frame{width:100%;height:min(58vh,400px);border:0;display:block}
+.mfoot{font-size:10px;color:#8f7ba8;line-height:1.55;margin:10px 0 0}
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);background:#1a0f2a;border:1px solid rgba(255,90,200,.5);color:#fff;font-size:11.5px;padding:9px 15px;border-radius:999px;opacity:0;transition:.25s;pointer-events:none;z-index:60;box-shadow:0 0 24px rgba(255,47,160,.4)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+@media(max-width:520px){.grid{grid-template-columns:repeat(2,1fr)}h1{font-size:42px}}
+</style>
+</head>
+<body>
+<div id="synix">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>
+  <div class="grain"></div>
 
+  <header class="topbar">
+    <div class="brand">synix<span class="dot"></span></div>
+    <nav class="pill">
+      <a href="#movies" title="Movies"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7.5 4v16M16.5 4v16M3 9.5h4.5M3 14.5h4.5M16.5 9.5H21M16.5 14.5H21"/></svg></a>
+      <a href="#ai" title="AI"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M18.5 16.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg></a>
+      <a href="#proxies" title="Proxies"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"/></svg></a>
+      <a href="#tools" title="Tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg></a>
+      <a href="#panic" title="Panic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l9 16H3z"/><path d="M12 9v4M12 16h.01"/></svg></a>
+    </nav>
+    <div class="clock"><span class="live"></span><span id="clock">--:--</span></div>
+  </header>
+
+  <div class="ribbon"><div class="ribbon-track" id="ribbon"></div></div>
+
+  <section class="hero">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.4"/></svg>
+    </div>
+    <h1>synix</h1>
+    <p class="kicker">Welcome to the best</p>
+    <p class="sub">movies · ai · proxies — <b>all unblocked</b></p>
+    <div class="searchwrap">
+      <svg class="sicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <input id="search" placeholder="search movies, or paste a TMDB id…" autocomplete="off">
+      <button id="searchBtn">play</button>
+    </div>
+    <div class="chips">
+      <span class="chip on">unblocked</span>
+      <span class="chip">no login</span>
+      <span class="chip">works on chromebooks</span>
+    </div>
+  </section>
+
+  <section id="movies" class="sec">
+    <div class="sechead"><h2>movies</h2><span class="count" id="mcount"></span></div>
+    <p class="note">Pick a title, then switch servers in the player if one stalls. New Spider-Man is in the list — if a title 404s, paste its TMDB id in the search bar.</p>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section id="ai" class="sec">
+    <div class="sechead"><h2>ai</h2><span class="count">9</span></div>
+    <p class="note">These open in a new tab — the big AI sites refuse to load inside another page. If one is blocked, route it through a proxy below.</p>
+    <div class="grid ai-grid" id="aiGrid"></div>
+  </section>
+
+  <section id="proxies" class="sec">
+    <div class="sechead"><h2>proxies</h2><span class="count">live</span></div>
+    <p class="note">A proxy hides the real site behind a different address, so the filter sees a domain nobody has reported. Public ones rotate — if one is dead, take the next.</p>
+    <div class="grid proxy-grid" id="proxyGrid"></div>
+    <div class="openbar">
+      <input id="proxyUrl" placeholder="paste any blocked url → open it through a proxy">
+      <button id="proxyGo">proxy it</button>
+    </div>
+  </section>
+
+  <section id="tools" class="sec">
+    <div class="sechead"><h2>bypass tools</h2></div>
+    <div class="toolgrid">
+      <button class="tool" id="cloakBtn">
+        <span class="tico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M8 9h8M8 13h5"/></svg></span>
+        <b>about:blank cloak</b>
+        <small>Opens Synix in a blank tab. The address bar shows nothing, so the extension has no domain to match. This is the one that actually works.</small>
+      </button>
+      <button class="tool" id="disguiseBtn">
+        <span class="tico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 8h16v11H4z"/><path d="M9 8V5h6v3"/></svg></span>
+        <b>disguise mode</b>
+        <small>Renames the tab to “Classes” with a school-looking icon. <i id="disguiseState">off</i></small>
+      </button>
+      <button class="tool" id="fsBtn">
+        <span class="tico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9V4h5M20 15v5h-5M15 4h5v5M9 20H4v-5"/></svg></span>
+        <b>fullscreen</b>
+        <small>Kills the browser chrome so only the page is visible.</small>
+      </button>
+      <button class="tool" id="copyBtn">
+        <span class="tico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 5H6a2 2 0 0 0-2 2v9"/></svg></span>
+        <b>copy link</b>
+        <small>Grabs this page’s address to drop in a doc or send to a friend. <i id="copyState"></i></small>
+      </button>
+    </div>
+  </section>
+
+  <section id="panic" class="sec">
+    <div class="sechead"><h2>panic key</h2></div>
+    <p class="note">Hit this combo and Synix vanishes to something innocent. Set it once and it sticks.</p>
+    <div class="panicro">
+      <select id="panicKey">
+        <option value="q">Alt + Q</option>
+        <option value="`">Alt + `</option>
+        <option value="x">Alt + X</option>
+        <option value="0">Alt + 0</option>
+      </select>
+      <select id="panicDest">
+        <option value="https://classroom.google.com">→ google classroom</option>
+        <option value="https://www.google.com">→ google</option>
+        <option value="about:blank">→ blank tab</option>
+        <option value="https://drive.google.com">→ google drive</option>
+      </select>
+      <button id="panicTest">test</button>
+    </div>
+    <div class="kbd-hint">current: <kbd id="kbdShow">Alt</kbd> + <kbd id="kbdShow2">Q</kbd></div>
+  </section>
+
+  <footer>
+    <div class="fbrand">synix</div>
+    <p>Built to be fast, boring to a filter, and impossible to leave. Nothing here is hosted by us — movies and AI load straight from their sources.</p>
+    <p class="tiny">site made for the people stuck behind go guardian</p>
+  </footer>
+
+  <div class="modal" id="modal">
+    <div class="modal-in">
+      <div class="mhead">
+        <h3 id="mtitle">title</h3>
+        <div class="mright">
+          <a id="mopen" target="_blank" rel="noopener">open in new tab</a>
+          <button id="mclose">close</button>
+        </div>
+      </div>
+      <div class="sources" id="sources"></div>
+      <div class="frame-wrap"><iframe id="frame" allow="fullscreen; autoplay; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="origin"></iframe></div>
+      <p class="mfoot">Server not loading? Switch the source above. If every one fails, the movie id is wrong — search the title on TMDB and use the number at the end of its url.</p>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+(function(){
+  var d = document.documentElement;
+  if (d.dataset.synixBooted) { startClock(); return; }
+  d.dataset.synixBooted = '1';
+
+  var MOVIES = [
+    ["Spider-Man: Brand New Day", 2026, 969681, "#ff2f5e,#6a0016"],
+    ["Spider-Man: No Way Home", 2021, 634649, "#e0245e,#2a0010"],
+    ["Spider-Man: Across the Spider-Verse", 2023, 569094, "#8b2bff,#ff2fa0"],
+    ["Spider-Man: Into the Spider-Verse", 2018, 324857, "#ff2fa0,#1b0033"],
+    ["Spider-Man: Homecoming", 2017, 314857, "#c81d3c,#0a0a1a"],
+    ["Spider-Man: Far From Home", 2019, 429617, "#2b6bff,#001a3d"],
+    ["The Amazing Spider-Man 2", 2014, 102382, "#1e6bff,#3a0000"],
+    ["Spider-Man 2", 2004, 558, "#c4141c,#1a0000"],
+    ["Venom: The Last Dance", 2024, 912649, "#3b0a5e,#0a0014"],
+    ["Deadpool & Wolverine", 2024, 533535, "#d31b1b,#2b0a3d"],
+    ["Dune: Part Two", 2024, 693134, "#c98a2e,#2a1600"],
+    ["Oppenheimer", 2023, 872585, "#ff7a1a,#150a00"],
+    ["Interstellar", 2014, 157336, "#3d6fa8,#04070f"],
+    ["Inception", 2010, 27205, "#5b7fa8,#05070c"],
+    ["The Batman", 2022, 414906, "#8f1414,#08080c"],
+    ["Top Gun: Maverick", 2022, 361743, "#2f7fd6,#00101f"],
+    ["Everything Everywhere All at Once", 2022, 545611, "#ff2fa0,#2b0a3d"],
+    ["John Wick: Chapter 4", 2023, 603692, "#b8102c,#0a0208"]
+  ];
+
+  var AI = [
+    ["ChatGPT","openai's chatgpt","https://chatgpt.com"],
+    ["Claude","anthropic's assistant","https://claude.ai"],
+    ["Gemini","google's ai","https://gemini.google.com"],
+    ["Perplexity","answer engine + sources","https://www.perplexity.ai"],
+    ["Grok","xai, live on x","https://grok.com"],
+    ["Copilot","microsoft's ai","https://copilot.microsoft.com"],
+    ["DeepSeek","reasoning model","https://chat.deepseek.com"],
+    ["Mistral","le chat","https://chat.mistral.ai"],
+    ["Venice","private, uncensored","https://venice.ai"]
+  ];
+
+  var PROXIES = [
+    ["Rammerhead","full browser proxy","https://rammerhead.org"],
+    ["Holy Unblocker","uv-based, many apps","https://holyunblocker.vercel.app"],
+    ["Titanium Network","proxy index + list","https://titaniumnetwork.org"],
+    ["Doge Unblocker","lightweight uv","https://dogeeu.vercel.app"],
+    ["Nebula","fast uv instance","https://nebula.terbium.dev"],
+    ["Interstellar","uv + games","https://interstellar.vercel.app"]
+  ];
+
+  var SOURCES = [
+    ["vidsrc.to", function(id){ return "https://vidsrc.to/embed/movie/" + id; }],
+    ["vidsrc.xyz", function(id){ return "https://vidsrc.xyz/embed/movie?tmdb=" + id; }],
+    ["embed.su", function(id){ return "https://embed.su/embed/movie/" + id; }],
+    ["2embed", function(id){ return "https://www.2embed.cc/embed/" + id; }]
+  ];
+
+  var grid = document.getElementById('grid');
+  var frag = document.createDocumentFragment();
+  MOVIES.forEach(function(m){
+    var c = document.createElement('div');
+    c.className = 'card';
+    c.dataset.title = m[0].toLowerCase();
+    c.innerHTML = '<div class="art" style="background:linear-gradient(155deg,'+m[3]+')"></div>'+
+      '<div class="play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>'+
+      '<div class="tt">'+m[0]+'</div><div class="yr">'+m[1]+'</div>';
+    c.onclick = function(){ openPlayer(m[0], m[2]); };
+    frag.appendChild(c);
+  });
+  grid.appendChild(frag);
+  document.getElementById('mcount').textContent = MOVIES.length + ' titles';
+
+  var ag = document.getElementById('aiGrid');
+  AI.forEach(function(a){
+    var el = document.createElement('a');
+    el.className = 'acard'; el.href = a[2]; el.target = '_blank'; el.rel = 'noopener';
+    el.innerHTML = '<span class="ext">↗</span><div class="an">'+a[0]+'</div><div class="ad">'+a[1]+'</div>';
+    ag.appendChild(el);
+  });
+
+  var pg = document.getElementById('proxyGrid');
+  PROXIES.forEach(function(p){
+    var el = document.createElement('a');
+    el.className = 'pcard'; el.href = p[2]; el.target = '_blank'; el.rel = 'noopener';
+    el.innerHTML = '<span class="pdot"></span><div><b>'+p[0]+'</b><small>'+p[1]+'</small></div>';
+    pg.appendChild(el);
+  });
+
+  var ico = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h5"/></svg>';
+  var rib = document.getElementById('ribbon');
+  var set = [ico,'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h10"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>'];
+  var html = '';
+  for (var i = 0; i < 14; i++) html += set[i % set.length];
+  rib.innerHTML = html + html;
+
+  function startClock(){
+    var c = document.getElementById('clock');
+    if (!c) return;
+    var tick = function(){
+      var t = new Date();
+      c.textContent = ((t.getHours()%12)||12) + ':' + String(t.getMinutes()).padStart(2,'0');
+    };
+    tick(); setInterval(tick, 15000);
+  }
+  startClock();
+
+  var toastEl = document.getElementById('toast'), toastT;
+  function toast(msg){
+    toastEl.textContent = msg; toastEl.classList.add('on');
+    clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 2200);
+  }
+
+  var modal = document.getElementById('modal'), frame = document.getElementById('frame'),
+      mtitle = document.getElementById('mtitle'), sourcesEl = document.getElementById('sources'),
+      mopen = document.getElementById('mopen'), curId = null;
+
+  function buildSources(){
+    sourcesEl.innerHTML = '';
+    SOURCES.forEach(function(s, i){
+      var b = document.createElement('button');
+      b.textContent = s[0];
+      if (i === 0) b.className = 'on';
+      b.onclick = function(){
+        [].forEach.call(sourcesEl.children, function(x){ x.className = ''; });
+        b.className = 'on'; load(i);
+      };
+      sourcesEl.appendChild(b);
+    });
+  }
+  function load(i){
+    var url = SOURCES[i][1](curId);
+    frame.src = url; mopen.href = url;
+  }
+  function openPlayer(title, id){
+    curId = id;
+    mtitle.textContent = title;
+    buildSources(); load(0);
+    modal.classList.add('open');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  document.getElementById('mclose').onclick = function(){
+    modal.classList.remove('open'); frame.src = 'about:blank';
+  };
+  modal.onclick = function(e){ if (e.target === modal) document.getElementById('mclose').click(); };
+
+  var search = document.getElementById('search');
+  search.oninput = function(){
+    var q = search.value.toLowerCase().trim();
+    [].forEach.call(grid.children, function(c){
+      c.classList.toggle('hide', q !== '' && c.dataset.title.indexOf(q) === -1);
+    });
+  };
+  document.getElementById('searchBtn').onclick = function(){
+    var q = search.value.trim();
+    if (!q) return;
+    if (/^\d+$/.test(q)) { openPlayer('TMDB #' + q, q); return; }
+    var hit = MOVIES.filter(function(m){ return m[0].toLowerCase().indexOf(q.toLowerCase()) > -1; })[0];
+    if (hit) { openPlayer(hit[0], hit[2]); return; }
+    window.open('https://www.themoviedb.org/search?query=' + encodeURIComponent(q), '_blank');
+    toast('No match here — TMDB opened. Use the number in the url.');
+  };
+  search.onkeydown = function(e){ if (e.key === 'Enter') document.getElementById('searchBtn').click(); };
+
+  document.getElementById('proxyGo').onclick = function(){
+    var u = document.getElementById('proxyUrl').value.trim();
+    if (!u) return;
+    if (!/^https?:\/\//.test(u)) u = 'https://' + u;
+    window.open('https://rammerhead.org/#/' + u.replace(/^https?:\/\//,''), '_blank');
+    toast('Sent to Rammerhead.');
+  };
+
+  document.getElementById('cloakBtn').onclick = function(){
+    var w = window.open('about:blank', '_blank');
+    if (!w) { toast('Popups are blocked — allow them for this page.'); return; }
+    var doc = w.document;
+    doc.open();
+    doc.write('<!DOCTYPE html>' + d.outerHTML);
+    doc.close();
+    toast('Cloaked. Address bar is blank.');
+  };
+
+  var disguised = false;
+  var CLASSROOM_ICON = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#0f9d58"/><path d="M23 12.5v-3l-7-3-7 3v3l7 3z" fill="#fff"/><path d="M11 13.6v4.2c0 1.6 2.2 2.6 5 2.6s5-1 5-2.6v-4.2l-5 2.1z" fill="#fff" opacity=".85"/></svg>');
+  var origTitle = document.title;
+  var origIcon = (document.querySelector('link[rel="icon"]') || {}).href || '';
+
+  function setIcon(href){
+    var l = document.querySelector('link[rel="icon"]');
+    if (!l) { l = document.createElement('link'); l.rel = 'icon'; document.head.appendChild(l); }
+    l.href = href;
+  }
+  document.getElementById('disguiseBtn').onclick = function(){
+    disguised = !disguised;
+    document.title = disguised ? 'Classes' : (origTitle || 'Synix');
+    setIcon(disguised ? CLASSROOM_ICON : (origIcon || CLASSROOM_ICON));
+    document.getElementById('disguiseState').textContent = disguised ? 'ON' : 'off';
+    toast(disguised ? 'Disguised as Classes.' : 'Back to Synix.');
+  };
+
+  document.getElementById('fsBtn').onclick = function(){
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen().catch(function(){ toast('Fullscreen refused here.'); });
+  };
+
+  document.getElementById('copyBtn').onclick = function(){
+    var u = location.href;
+    (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(function(){
+      document.getElementById('copyState').textContent = 'copied';
+      toast('Link copied.');
+    }).catch(function(){
+      document.getElementById('copyState').textContent = u.slice(0, 26) + '…';
+    });
+  };
+
+  var pk = document.getElementById('panicKey'), pd = document.getElementById('panicDest');
+  try {
+    pk.value = localStorage.getItem('synix_pk') || 'q';
+    pd.value = localStorage.getItem('synix_pd') || 'https://classroom.google.com';
+  } catch(e){}
+  function syncKbd(){
+    document.getElementById('kbdShow').textContent = 'Alt';
+    document.getElementById('kbdShow2').textContent = pk.value === '`' ? '`' : pk.value.toUpperCase();
+  }
+  syncKbd();
+  pk.onchange = function(){ syncKbd(); try { localStorage.setItem('synix_pk', pk.value); } catch(e){} };
+  pd.onchange = function(){ try { localStorage.setItem('synix_pd', pd.value); } catch(e){} };
+  document.getElementById('panicTest').onclick = function(){ location.href = pd.value; };
+  window.addEventListener('keydown', function(e){
+    if (e.altKey && !e.ctrlKey && !e.metaKey && e.key.toLowerCase() === pk.value.toLowerCase()) {
+      e.preventDefault(); location.href = pd.value;
+    }
+    if (e.key === 'Escape' && modal.classList.contains('open')) document.getElementById('mclose').click();
+  });
+})();
+</script>
+</body>
+</html>
